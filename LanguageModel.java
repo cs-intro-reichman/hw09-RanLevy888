@@ -79,7 +79,8 @@ public class LanguageModel {
         StringBuilder generatedText = new StringBuilder(initialText);
         String currentWindow = initialText.substring(initialText.length() - windowLength);
 
-        while (generatedText.length() < textLength) {
+        // התיקון הקריטי: textLength הוא מספר התווים שצריך לייצר בנוסף ל-initialText
+        while (generatedText.length() < (initialText.length() + textLength)) {
             List probs = CharDataMap.get(currentWindow);
             if (probs == null) {
                 break;
