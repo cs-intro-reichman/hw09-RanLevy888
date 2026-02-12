@@ -77,27 +77,28 @@ public class LanguageModel {
     }
 
     public String generate(String initialText, int textLength) {
-        if (initialText.length() < windowLength || initialText.length() >= textLength) {
-            return initialText;
-        }
-
-        StringBuilder generatedText = new StringBuilder(initialText);
-        
-        while (generatedText.length() < textLength) {
-            String currentWindow = generatedText.substring(generatedText.length() - windowLength);
-            List probs = CharDataMap.get(currentWindow);
-            
-            if (probs != null) {
-                char nextChar = getRandomChar(probs);
-                generatedText.append(nextChar);
-            } else {
-                break;
-            }
-        }
-
-        return generatedText.toString();
+    if (initialText.length() < windowLength) {
+        return initialText;
     }
 
+    StringBuilder generatedText = new StringBuilder(initialText);
+    String currentWindow = initialText.substring(initialText.length() - windowLength);
+
+    while (generatedText.length() < textLength) {
+        List probs = CharDataMap.get(currentWindow);
+        
+        if (probs == null) {
+            break;
+        }
+        
+        char nextChar = getRandomChar(probs);
+        generatedText.append(nextChar);
+        
+        currentWindow = generatedText.substring(generatedText.length() - windowLength);
+    }
+
+    return generatedText.toString();
+}
     public String toString() {
         StringBuilder str = new StringBuilder();
         for (String key : CharDataMap.keySet()) {
