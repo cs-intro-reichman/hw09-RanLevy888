@@ -20,45 +20,31 @@ public class LanguageModel {
     }
 
     public void train(String fileName) {
-        String window = "";
-        char c;
         In in = new In(fileName);
+        StringBuilder window = new StringBuilder();
 
-        // build the initial window
+        // 1. Build the initial window
         for (int i = 0; i < windowLength; i++) {
             if (!in.isEmpty()) {
-                window += in.readChar();
+                window.append(in.readChar());
             }
         }
 
-        // keep the initial window for wrap-around
-        String startWindow = window;
-
-        // main training pass
         while (!in.isEmpty()) {
-            c = in.readChar();
-            List probs = CharDataMap.get(window);
+            char c = in.readChar();
+            String currentWindow = window.toString();
+            
+            List probs = CharDataMap.get(currentWindow);
             if (probs == null) {
                 probs = new List();
-                CharDataMap.put(window, probs);
+                CharDataMap.put(currentWindow, probs);
             }
             probs.update(c);
-            window = window.substring(1) + c;
+
+            window.deleteCharAt(0);
+            window.append(c);
         }
 
-        // wrap-around: connect the end back to the beginning
-        for (int i = 0; i < windowLength; i++) {
-            c = startWindow.charAt(i);
-            List probs = CharDataMap.get(window);
-            if (probs == null) {
-                probs = new List();
-                CharDataMap.put(window, probs);
-            }
-            probs.update(c);
-            window = window.substring(1) + c;
-        }
-
-        // compute probabilities for each window
         for (List probs : CharDataMap.values()) {
             calculateProbabilities(probs);
         }
@@ -66,6 +52,7 @@ public class LanguageModel {
 
     void calculateProbabilities(List probs) {
         int totalCount = 0;
+        // Count total occurrences in this list
         for (int i = 0; i < probs.getSize(); i++) {
             totalCount += probs.get(i).count;
         }
@@ -90,21 +77,22 @@ public class LanguageModel {
     }
 
     public String generate(String initialText, int textLength) {
-        if (initialText.length() < windowLength) {
+        if (initialText.length() < windowLength || initialText.length() >= textLength) {
             return initialText;
         }
 
         StringBuilder generatedText = new StringBuilder(initialText);
-        String currentWindow = initialText.substring(initialText.length() - windowLength);
-
+        
         while (generatedText.length() < textLength) {
+            String currentWindow = generatedText.substring(generatedText.length() - windowLength);
             List probs = CharDataMap.get(currentWindow);
-            if (probs == null) {
+            
+            if (probs != null) {
+                char nextChar = getRandomChar(probs);
+                generatedText.append(nextChar);
+            } else {
                 break;
             }
-            char nextChar = getRandomChar(probs);
-            generatedText.append(nextChar);
-            currentWindow = generatedText.substring(generatedText.length() - windowLength);
         }
 
         return generatedText.toString();
@@ -120,20 +108,5 @@ public class LanguageModel {
     }
 
     public static void main(String[] args) {
-        int windowLength = Integer.parseInt(args[0]);
-        String initialText = args[1];
-        int generatedTextLength = Integer.parseInt(args[2]);
-        Boolean randomGeneration = args[3].equals("random");
-        String fileName = args[4];
-
-        LanguageModel lm;
-        if (randomGeneration) {
-            lm = new LanguageModel(windowLength);
-        } else {
-            lm = new LanguageModel(windowLength, 20);
-        }
-
-        lm.train(fileName);
-        System.out.println(lm.generate(initialText, generatedTextLength));
     }
 }
