@@ -24,12 +24,17 @@ public class LanguageModel {
         char c;
         In in = new In(fileName);
 
+        // build the initial window
         for (int i = 0; i < windowLength; i++) {
             if (!in.isEmpty()) {
                 window += in.readChar();
             }
         }
 
+        // keep the initial window for wrap-around
+        String startWindow = window;
+
+        // main training pass
         while (!in.isEmpty()) {
             c = in.readChar();
             List probs = CharDataMap.get(window);
@@ -41,12 +46,25 @@ public class LanguageModel {
             window = window.substring(1) + c;
         }
 
+        // wrap-around: connect the end back to the beginning
+        for (int i = 0; i < windowLength; i++) {
+            c = startWindow.charAt(i);
+            List probs = CharDataMap.get(window);
+            if (probs == null) {
+                probs = new List();
+                CharDataMap.put(window, probs);
+            }
+            probs.update(c);
+            window = window.substring(1) + c;
+        }
+
+        // compute probabilities for each window
         for (List probs : CharDataMap.values()) {
             calculateProbabilities(probs);
         }
     }
 
-    void calculateProbabilities(List probs) {               
+    void calculateProbabilities(List probs) {
         int totalCount = 0;
         for (int i = 0; i < probs.getSize(); i++) {
             totalCount += probs.get(i).count;
@@ -79,8 +97,7 @@ public class LanguageModel {
         StringBuilder generatedText = new StringBuilder(initialText);
         String currentWindow = initialText.substring(initialText.length() - windowLength);
 
-        // התיקון הקריטי: textLength הוא מספר התווים שצריך לייצר בנוסף ל-initialText
-        while (generatedText.length() < (initialText.length() + textLength)) {
+        while (generatedText.length() < textLength) {
             List probs = CharDataMap.get(currentWindow);
             if (probs == null) {
                 break;
