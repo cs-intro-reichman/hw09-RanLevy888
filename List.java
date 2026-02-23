@@ -51,9 +51,9 @@ public class List {
     }
 
     /**
-     * If chr already exists, increments its count and moves it to the correct
-     * sorted position (ascending by count).  Otherwise adds a new node at the
-     * end (count = 1, the smallest possible value).
+     * If chr already exists, increments its count then bubble-swaps it forward
+     * past any following nodes with a strictly smaller count.
+     * Otherwise appends a new node at the end (count = 1).
      */
     public void update(char chr) {
         Node current = first;
@@ -63,25 +63,15 @@ public class List {
         while (current != null) {
             if (current.chr == chr) {
                 current.count++;
-
-                // Remove from current position
-                if (prev == null) {
-                    first = current.next;
-                } else {
-                    prev.next = current.next;
-                }
-                size--;
-
-                // Re-insert in sorted position (ascending count)
-                insertSorted(current);
-                size++;
+                // Bubble this node past subsequent nodes with smaller count
+                bubbleForward(prev, current);
                 return;
             }
             prev = current;
             current = current.next;
         }
 
-        // chr not found — append new node at the end (count=1, smallest)
+        // chr not found — append new node at the end
         Node newNode = new Node(chr, null);
         if (first == null) {
             first = newNode;
@@ -95,23 +85,23 @@ public class List {
         size++;
     }
 
-    /** Inserts an existing node into the list in ascending-count order. */
-    private void insertSorted(Node node) {
-        node.next = null;
-
-        // Insert before the first node whose count is strictly greater
-        if (first == null || node.count <= first.count) {
-            node.next = first;
-            first = node;
-            return;
+    /**
+     * Moves 'node' (whose predecessor is 'prev') forward past any nodes
+     * that have a strictly smaller count than node.count.
+     */
+    private void bubbleForward(Node prev, Node node) {
+        while (node.next != null && node.count > node.next.count) {
+            Node after = node.next;
+            // Swap node and after
+            node.next = after.next;
+            after.next = node;
+            if (prev == null) {
+                first = after;
+            } else {
+                prev.next = after;
+            }
+            prev = after;
         }
-
-        Node current = first;
-        while (current.next != null && current.next.count <= node.count) {
-            current = current.next;
-        }
-        node.next = current.next;
-        current.next = node;
     }
 
     public boolean remove(char chr) {
