@@ -1,3 +1,4 @@
+/** A linked list of character data objects. */
 public class List {
 
     private Node first;
@@ -7,14 +8,13 @@ public class List {
         first = null;
         size = 0;
     }
-    
+
     public int getSize() {
-          return size;
+        return size;
     }
 
-    public CharData getFirst() {
-        if (first == null) return null;
-        return first.cp;
+    public Node getFirst() {
+        return first;
     }
 
     public void addFirst(char chr) {
@@ -24,26 +24,12 @@ public class List {
         size++;
     }
     
-    public String toString() {
-        if (size == 0) return "()";
-        StringBuilder str = new StringBuilder("(");
-        Node current = first;
-        while (current != null) {
-            str.append(current.cp.toString());
-            current = current.next;
-            if (current != null) {
-                str.append(" ");
-            }
-        }
-        str.append(")");
-        return str.toString();
-    }
-
     public int indexOf(char chr) {
         Node current = first;
         int index = 0;
         while (current != null) {
-            if (current.cp.chr == chr) {
+            // שים לב: אם ב-Node קוראים לשדה value במקום cp, שנה את זה כאן
+            if (current.cp.chr == chr) { 
                 return index;
             }
             current = current.next;
@@ -91,26 +77,18 @@ public class List {
         return current.cp;
     }
 
-    public CharData[] toArray() {
-        CharData[] arr = new CharData[size];
-        Node current = first;
-        int i = 0;
-        while (current != null) {
-            arr[i++] = current.cp;
-            current = current.next;
-        }
-        return arr;
+    public ListIterator listIterator(int index) {
+        return new ListIterator(get(index));
     }
 
-    public ListIterator listIterator(int index) {
-        if (size == 0) return null;
+    public String toString() {
+        if (size == 0) return "()";
+        StringBuilder sb = new StringBuilder("(");
         Node current = first;
-        int i = 0;
-        while (i < index && current != null) {
+        while (current != null) {
+            sb.append(current.cp.toString()).append(" ");
             current = current.next;
-            i++;
         }
-        return new ListIterator(current);
+        return sb.toString().trim() + ")";
     }
-    
 }
