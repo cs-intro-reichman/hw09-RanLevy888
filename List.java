@@ -28,7 +28,7 @@ public class List {
         Node current = first;
         int index = 0;
         while (current != null) {
-            // שים לב: אם ב-Node קוראים לשדה value במקום cp, שנה את זה כאן
+            // גישה לתו דרך אובייקט ה-CharData שנמצא ב-Node
             if (current.cp.chr == chr) { 
                 return index;
             }
@@ -77,8 +77,16 @@ public class List {
         return current.cp;
     }
 
+    // תיקון השגיאה: ListIterator מקבל Node ולא CharData
     public ListIterator listIterator(int index) {
-        return new ListIterator(get(index));
+        if (index < 0 || index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+        Node current = first;
+        for (int i = 0; i < index; i++) {
+            current = current.next;
+        }
+        return new ListIterator(current); 
     }
 
     public String toString() {
