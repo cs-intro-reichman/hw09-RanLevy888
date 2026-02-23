@@ -1,9 +1,8 @@
 /** A linked list of character data objects. */
 public class List {
-
     private Node first;
     private int size;
-    
+
     public List() {
         first = null;
         size = 0;
@@ -23,13 +22,12 @@ public class List {
         first = newNode;
         size++;
     }
-    
+
     public int indexOf(char chr) {
         Node current = first;
         int index = 0;
         while (current != null) {
-            // גישה לתו דרך אובייקט ה-CharData שנמצא ב-Node
-            if (current.cp.chr == chr) { 
+            if (current.cp.chr == chr) { // גישה לתו דרך ה-CharData
                 return index;
             }
             current = current.next;
@@ -77,7 +75,6 @@ public class List {
         return current.cp;
     }
 
-    // תיקון השגיאה: ListIterator מקבל Node ולא CharData
     public ListIterator listIterator(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException();
@@ -86,7 +83,7 @@ public class List {
         for (int i = 0; i < index; i++) {
             current = current.next;
         }
-        return new ListIterator(current); 
+        return new ListIterator(current);
     }
 
     public String toString() {
