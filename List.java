@@ -1,162 +1,147 @@
-/** A linked list of character data objects. */
 public class List {
+
+    // Points to the first node in this list
     private Node first;
+
+    // The number of elements in this list
     private int size;
-
-    public static class Node {
-        char chr;
-        int count;
-        Node next;
-        double p;
-        double cp;
-
-        public Node(char chr, Node next) {
-            this.chr = chr;
-            this.count = 1;
-            this.next = next;
-        }
-    }
-
+	
+    /** Constructs an empty list. */
     public List() {
         first = null;
         size = 0;
     }
-
+    
+    /** Returns the number of elements in this list. */
     public int getSize() {
-        return size;
+ 	      return size;
     }
 
-    public Node getFirst() {
-        return first;
+    /** Returns the CharData of the first element in this list. */
+    public CharData getFirst() {
+        return first.cp;
     }
 
+    /** GIVE Adds a CharData object with the given character to the beginning of this list. */
     public void addFirst(char chr) {
-        first = new Node(chr, first);
-        size++;
+        CharData rishon = new CharData(chr);
+        Node head = new Node(rishon, first);
+        first = head;
+        this.size++;
+    }
+    
+    /** GIVE Textual representation of this list. */
+    public String toString() {
+        if (size == 0) return "()";
+
+        Node check = first;
+        StringBuilder text = new StringBuilder();
+        text.append("(");
+        while (check != null)
+        {
+            String temp = check.toString();
+            text.append(temp + " ");
+            check = check.next; 
+        }
+        return text.substring(0, text.length() - 1) + (")");
     }
 
+    /** Returns the index of the first CharData object in this list
+     *  that has the same chr value as the given char,
+     *  or -1 if there is no such object in this list. */
     public int indexOf(char chr) {
-        Node current = first;
-        int index = 0;
+        if (size == 0) return -1;
 
-        while (current != null) {
-            if (current.chr == chr) {
-                return index;
-            }
-            current = current.next;
-            index++;
+        int value = 0;
+        Node check = first;
+        while (check != null)
+        {
+            if (chr == check.cp.chr) return value;
+            check = check.next;
+            value++;
         }
-
         return -1;
     }
 
-    /**
-     * If chr already exists, increments its count then bubble-swaps it forward
-     * past any following nodes with a strictly smaller count.
-     * Otherwise appends a new node at the end (count = 1).
-     */
+    /** If the given character exists in one of the CharData objects in this list,
+     *  increments its counter. Otherwise, adds a new CharData object with the
+     *  given chr to the beginning of this list. */
     public void update(char chr) {
-        Node current = first;
-        Node prev = null;
-
-        // Search for existing node
-        while (current != null) {
-            if (current.chr == chr) {
-                current.count++;
-                // Bubble this node past subsequent nodes with smaller count
-                bubbleForward(prev, current);
-                return;
+        if (indexOf(chr) == -1) {addFirst(chr);}
+        
+        else 
+        {
+            Node temp = first;
+            for (int i = 0; i < indexOf(chr); i++)
+            {
+                temp = temp.next;
             }
-            prev = current;
-            current = current.next;
-        }
-
-        // chr not found — append new node at the end
-        Node newNode = new Node(chr, null);
-        if (first == null) {
-            first = newNode;
-        } else {
-            Node tail = first;
-            while (tail.next != null) {
-                tail = tail.next;
-            }
-            tail.next = newNode;
-        }
-        size++;
-    }
-
-    /**
-     * Moves 'node' (whose predecessor is 'prev') forward past any nodes
-     * that have a strictly smaller count than node.count.
-     */
-    private void bubbleForward(Node prev, Node node) {
-        while (node.next != null && node.count > node.next.count) {
-            Node after = node.next;
-            // Swap node and after
-            node.next = after.next;
-            after.next = node;
-            if (prev == null) {
-                first = after;
-            } else {
-                prev.next = after;
-            }
-            prev = after;
+            temp.cp.count++;
         }
     }
 
+    /** GIVE If the given character exists in one of the CharData objects
+     *  in this list, removes this CharData object from the list and returns
+     *  true. Otherwise, returns false. */
     public boolean remove(char chr) {
-        Node prev = null;
-        Node current = first;
-
-        while (current != null) {
-            if (current.chr == chr) {
-                if (prev == null) {
-                    first = first.next;
-                } else {
-                    prev.next = current.next;
-                }
-                size--;
-                return true;
-            }
-            prev = current;
-            current = current.next;
+        int index = indexOf(chr);
+        if (index == -1) return false;
+        if (first == null) return false;
+        if (index == 0) 
+        {
+            first = first.next;
+            this.size--;
         }
-
-        return false;
+        else 
+        {
+            Node temp = first;
+            for (int i = 0; i < index - 1; i++)
+            {
+                temp = temp.next;
+            }
+            temp.next = temp.next.next;
+            this.size--;
+        }
+        return true;
     }
 
-    public Node get(int index) {
-        if (index < 0 || index >= size) {
-            throw new IndexOutOfBoundsException();
+    /** Returns the CharData object at the specified index in this list. 
+     *  If the index is negative or is greater than the size of this list, 
+     *  throws an IndexOutOfBoundsException. */
+    public CharData get(int index) {
+        if (index < 0 || index >= this.size) throw new IndexOutOfBoundsException();
+        Node temp = first;
+        for (int i = 0; i < index; i++)
+        {
+            temp = temp.next;
         }
-
-        Node current = first;
-        for (int i = 0; i < index; i++) {
-            current = current.next;
-        }
-        return current;
+        return temp.cp;
     }
 
-    /** Returns a string like: ((a 1 0.25 0.25) (b 3 0.75 1.0)) */
-    public String toString() {
-        StringBuilder sb = new StringBuilder("(");
-
-        Node current = first;
+    /** Returns an array of CharData objects, containing all the CharData objects in this list. */
+    public CharData[] toArray() {
+	    CharData[] arr = new CharData[size];
+	    Node current = first;
+	    int i = 0;
         while (current != null) {
-            sb.append("(")
-              .append(current.chr).append(" ")
-              .append(current.count).append(" ")
-              .append(current.p).append(" ")
-              .append(current.cp)
-              .append(")");
-
-            if (current.next != null) {
-                sb.append(" ");
-            }
-            current = current.next;
+    	    arr[i++]  = current.cp;
+    	    current = current.next;
         }
+        return arr;
+    }
 
-        sb.append(")");
-        return sb.toString();
+    /** Returns an iterator over the elements in this list, starting at the given index. */
+    public ListIterator listIterator(int index) {
+	    // If the list is empty, there is nothing to iterate   
+	    if (size == 0) return null;
+	    // Gets the element in position index of this list
+	    Node current = first;
+	    int i = 0;
+        while (i < index) {
+            current = current.next;
+            i++;
+        }
+        // Returns an iterator that starts in that element
+	    return new ListIterator(current);
     }
 }
