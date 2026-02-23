@@ -92,17 +92,17 @@ public class LanguageModel {
 
         while (generated.length() < textLength) {
 
-            List probs = CharDataMap.get(window);
+    List probs = CharDataMap.get(window);
 
-            if (probs == null) {
-                break;
-            }
+    if (probs == null || probs.getSize() == 0) {
+        break;
+    }
 
-            char nextChar = getRandomChar(probs);
-            generated.append(nextChar);
+    char nextChar = getRandomChar(probs);
+    generated.append(nextChar);
 
-            window = generated.substring(generated.length() - windowLength);
-        }
+    window = generated.substring(generated.length() - windowLength);
+}
 
         return generated.toString();
     }

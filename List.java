@@ -49,18 +49,29 @@ public class List {
     }
 
     public void update(char chr) {
-        Node current = first;
 
-        while (current != null) {
-            if (current.chr == chr) {
-                current.count++;
-                return;
-            }
-            current = current.next;
+    Node current = first;
+    Node prev = null;
+
+    while (current != null) {
+        if (current.chr == chr) {
+            current.count++;
+            return;
         }
-
-        addFirst(chr);
+        prev = current;
+        current = current.next;
     }
+
+    Node newNode = new Node(chr, null);
+
+    if (first == null) {
+        first = newNode;
+    } else {
+        prev.next = newNode;
+    }
+
+    size++;
+}
 
     public boolean remove(char chr) {
         Node prev = null;
@@ -98,23 +109,27 @@ public class List {
         return current;
     }
 
-    public String toString() {
-        if (size == 0) return "()";
+   public String toString() {
 
-        StringBuilder sb = new StringBuilder("(");
-        Node current = first;
+    StringBuilder sb = new StringBuilder();
 
-        while (current != null) {
-            sb.append(current.chr)
-              .append(":")
-              .append(current.count)
-              .append(" ");
-            current = current.next;
+    Node current = first;
+
+    while (current != null) {
+        sb.append("(")
+          .append(current.chr).append(" ")
+          .append(current.count).append(" ")
+          .append(current.p).append(" ")
+          .append(current.cp)
+          .append(")");
+
+        if (current.next != null) {
+            sb.append(" ");
         }
 
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(")");
-
-        return sb.toString();
+        current = current.next;
     }
+
+    return sb.toString();
+}
 }
